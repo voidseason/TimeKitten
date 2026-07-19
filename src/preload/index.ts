@@ -6,7 +6,8 @@ import type {
   UpdatePlanInput,
   TimeSession,
   TimeRangeQuery,
-  PlanTimeSummary
+  PlanTimeSummary,
+  PetTimerState
 } from '../shared/types'
 
 /**
@@ -54,6 +55,36 @@ const api = {
 
     settingSet: (key: string, value: string): Promise<void> =>
       ipcRenderer.invoke(IPC_CHANNELS.SETTING_SET, key, value)
+  },
+  pet: {
+    // 窗口控制
+    open: (): Promise<void> => ipcRenderer.invoke(IPC_CHANNELS.PET_OPEN),
+    close: (): Promise<void> => ipcRenderer.invoke(IPC_CHANNELS.PET_CLOSE),
+    openMain: (): Promise<void> => ipcRenderer.invoke(IPC_CHANNELS.PET_OPEN_MAIN),
+
+    // 拖拽移动
+    move: (x: number, y: number): void =>
+      ipcRenderer.send(IPC_CHANNELS.PET_MOVE, x, y),
+    getPosition: (): Promise<{ x: number; y: number } | null> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PET_GET_POSITION),
+
+    // 累计时长 & 资源
+    getTotalSeconds: (): Promise<number> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PET_GET_TOTAL_SECONDS),
+    listAssets: (): Promise<string[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PET_LIST_ASSETS),
+    getAsset: (fileName: string): Promise<string | null> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PET_GET_ASSET, fileName),
+
+    // 计时状态：主界面广播
+    broadcastTimerState: (state: PetTimerState): void =>
+      ipcRenderer.send(IPC_CHANNELS.PET_TIMER_STATE, state),
+    // 计时状态：桌宠窗口订阅
+    onTimerState: (cb: (state: PetTimerState) => void): (() => void) => {
+      const listener = (_e: unknown, state: PetTimerState): void => cb(state)
+      ipcRenderer.on(IPC_CHANNELS.PET_TIMER_STATE, listener)
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.PET_TIMER_STATE, listener)
+    }
   }
 }
 

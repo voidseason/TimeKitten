@@ -96,6 +96,13 @@ export function TimerPanel({ plan, onSessionChanged }: Props): JSX.Element {
     setActiveSession(session)
     setElapsed(0)
     onSessionChanged?.()
+    // 广播给桌宠窗口
+    window.api.pet.broadcastTimerState({
+      isRunning: true,
+      planTitle: plan.title,
+      planColor: plan.color,
+      startedAt: session.started_at
+    })
   }, [plan, onSessionChanged])
 
   const handleStop = useCallback(async () => {
@@ -107,8 +114,14 @@ export function TimerPanel({ plan, onSessionChanged }: Props): JSX.Element {
     setActiveSession(null)
     setElapsed(0)
     onSessionChanged?.()
-    // 重新加载以获取准确值
     if (plan) loadToday(plan.id)
+    // 广播给桌宠窗口
+    window.api.pet.broadcastTimerState({
+      isRunning: false,
+      planTitle: null,
+      planColor: null,
+      startedAt: null
+    })
   }, [activeSession, plan, onSessionChanged, loadToday])
 
   // 当前显示的总秒数

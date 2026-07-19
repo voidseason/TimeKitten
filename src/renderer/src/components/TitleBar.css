@@ -43,6 +43,31 @@
   outline: none;
 }
 
+.titlebar__pet {
+  height: 28px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.titlebar__pet:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.titlebar__pet--on {
+  background: color-mix(in srgb, var(--color-primary) 22%, transparent);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
 .titlebar__btn {
   width: 30px;
   height: 30px;

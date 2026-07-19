@@ -30,3 +30,7 @@ Thumbs.db
 *.sqlite
 *.sqlite-journal
 *.db
+
+# 桌宠图片资源（用户自备，不进版本控制）
+assets/pet/*
+!assets/pet/README.md

@@ -144,3 +144,13 @@ export function setSetting(key: string, value: string): void {
     )
     .run(key, value)
 }
+
+// ========== 桌宠：累计统计 ==========
+
+/** 所有计划、所有时间的累计学习总秒数（用于桌宠形态解锁） */
+export function getTotalStudySeconds(): number {
+  const row = getDb()
+    .prepare('SELECT COALESCE(SUM(duration_seconds), 0) AS total FROM time_sessions')
+    .get() as { total: number }
+  return row.total
+}

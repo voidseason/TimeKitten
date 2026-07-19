@@ -15,6 +15,27 @@
     "typecheck": "npm run typecheck:node && npm run typecheck:web",
     "package:win": "electron-vite build && electron-builder --win"
   },
+  "build": {
+    "appId": "com.timekitten.app",
+    "productName": "TimeKitten",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "assets/pet",
+        "to": "assets/pet",
+        "filter": ["**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.webp", "**/*.gif"]
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  },
   "dependencies": {
     "better-sqlite3": "^12.11.1"
   },

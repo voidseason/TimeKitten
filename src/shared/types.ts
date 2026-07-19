@@ -65,5 +65,38 @@ export const IPC_CHANNELS = {
 
   // Settings
   SETTING_GET: 'db:setting:get',
-  SETTING_SET: 'db:setting:set'
+  SETTING_SET: 'db:setting:set',
+
+  // 桌宠
+  PET_OPEN: 'pet:open',
+  PET_CLOSE: 'pet:close',
+  PET_MOVE: 'pet:move',
+  PET_GET_POSITION: 'pet:get-position',
+  PET_OPEN_MAIN: 'pet:open-main',
+  PET_GET_TOTAL_SECONDS: 'pet:get-total-seconds',
+  PET_GET_ASSET: 'pet:get-asset',
+  PET_LIST_ASSETS: 'pet:list-assets',
+  // 主进程 → 桌宠：计时状态变化广播
+  PET_TIMER_STATE: 'pet:timer-state'
 } as const
+
+/** 桌宠形态定义（图片文件 + 解锁阈值） */
+export interface PetForm {
+  /** 形态 id */
+  id: string
+  /** 展示名 */
+  name: string
+  /** 图片文件名（相对 assets/pet/） */
+  file: string
+  /** 解锁所需累计学习秒数（0 = 默认解锁） */
+  unlockSeconds: number
+}
+
+/** 桌宠计时状态（主进程广播给桌宠窗口） */
+export interface PetTimerState {
+  isRunning: boolean
+  planTitle: string | null
+  planColor: string | null
+  /** 当前会话开始时间（ISO），用于计算已计时秒数 */
+  startedAt: string | null
+}

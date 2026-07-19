@@ -88,9 +88,17 @@ IPC 通道常量在 `src/shared/types.ts` 的 `IPC_CHANNELS` 定义。
 | 0 | 脚手架 + 主题系统 + Git 双分支 | ✅ done |
 | 1 | 数据层（表 + DAO + IPC） | ✅ done |
 | 2 | 每日计划列表（PlanList/PlanCard/PlanAddInput） | ✅ done |
-| 3 | 正向计时 | ⬜ |
-| 4 | 时长圆环可视化 | ⬜ |
-| 5 | 桌宠（Live2D 兽耳娘） | ⬜ |
+| 3 | 正向计时（TimerRing/TimerPanel） | ✅ done |
+| 4 | 时长圆环可视化（DonutChart/StatLegend/StatView） | ✅ done |
+| 5 | 桌宠（透明置顶窗 + CSS 动效 + 30min 轮播） | ✅ done |
+
+## 桌宠模块要点（模块5）
+
+- 独立 `BrowserWindow`：`transparent + frame:false + alwaysOnTop('screen-saver') + skipTaskbar`
+- 图片资源在 `assets/pet/`（.gitignore 忽略），通过 IPC 读取为 base64 dataURL 传给渲染层（绕过 CSP `file://`）
+- 形态配置在 `src/shared/petForms.ts`，计时中每 `PET_FORM_ROTATE_MINUTES`（默认 30）分钟自动轮播下一张；非计时时通过菜单手动轮播
+- 计时状态通过 `pet:timer-state` 通道：主界面 → 主进程 → 桌宠窗口
+- 打包：`electron-builder` 的 `extraResources` 把 `assets/pet` 复制进 `resources/`
 
 ## 分支策略
 
