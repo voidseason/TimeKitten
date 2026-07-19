@@ -1,0 +1,98 @@
+# CLAUDE.md — 学时喵 · TimeKitten
+
+> 记录每天学习时长的动漫风 Windows 桌面应用，含可常驻桌面的兽耳娘桌宠。
+
+## 技术栈与运行
+
+- Electron v33 + React 18 + TypeScript 5.6
+- electron-vite（构建/HMR）+ electron-builder（打包 Windows）
+- better-sqlite3（数据层，WAL 模式）
+- dnd-kit（拖拽排序）、Live2D（桌宠动画，模块5）
+- npm 包管理
+
+```bash
+npm install      # 安装依赖（需要 ELECTRON_MIRROR 加速，见下文）
+npm run dev      # 开发模式（HMR），启动窗口 + dev server
+npm run build    # 构建
+npm run typecheck # 类型检查
+```
+
+**Electron 下载镜像**：始终设置环境变量加速下载
+```powershell
+$env:ELECTRON_MIRROR="https://registry.npmmirror.com/-/binary/electron/"
+```
+
+## 目录结构
+
+```
+src/
+  main/            Electron 主进程
+    index.ts       入口 — 单实例锁、IPC 注册、窗口创建
+    windows/       窗口类（mainWindow, petWindow 模块5）
+    ipc/           所有 IPC handler（windowControls, dbHandlers）
+    db/            数据库层
+      schema.ts    建表 SQL
+      connection.ts 单例连接
+      dao.ts       CRUD + 统计查询
+  preload/
+    index.ts       contextBridge 暴露 api 给渲染进程
+    index.d.ts     类型声明
+  renderer/
+    index.html     主界面入口
+    pet.html       桌宠窗口入口（模块5）
+    src/
+      main.tsx     React 挂载点
+      pet.tsx      桌宠占位
+      App.tsx      根组件（两栏布局）
+      App.css
+      components/
+        TitleBar.*     自绘标题栏 + 主题切换
+        PlanList.*     计划列表容器（dnd-kit 排序）
+        PlanCard.*     单张计划卡片
+        PlanAddInput.* 新增计划输入
+      theme/
+        ThemeProvider.tsx  React Context 主题注入
+      styles/
+        global.css     全局样式 + 通透风背景
+  shared/
+    types.ts        共享类型（Plan, TimeSession, PlanTimeSummary, IPC_CHANNELS）
+    theme/
+      types.ts      主题 Ts 定义
+      themes.ts     内置主题（星海通透 aurora / 治愈暖阳 sunny）
+      applyTheme.ts 主题 → CSS 变量
+```
+
+## 架构约束
+
+1. **渲染进程无 Node 权限**：所有数据库/系统操作通过 `preload` 的 `api.*` 桥，不能直接 `import 'electron'`
+2. **UI 模板化可替换**：所有颜色/圆角/阴影走 `Theme` 定义 → 注入 CSS 变量，组件只用 `var(--xxx)`。新增皮肤在 `src/shared/theme/themes.ts` 追加一份 `Theme` 即可
+3. **数据流单向**：渲染层 → IPC invoke → 主进程 handler → DAO → SQLite
+4. **桌宠窗口独立**：`pet.html` 是独立 BrowserWindow（透明置顶、无边框、穿透点击），模块5 实现
+
+## 数据库（模块1）
+
+文件位置：`%APPDATA%/TimeKitten/timekitten.db`
+
+| 表 | 说明 |
+|---|---|
+| plans | id, title, color, sort_order, is_active, created_at, updated_at |
+| time_sessions | id, plan_id, started_at, ended_at, duration_seconds, 索引(plan_id, started_at) |
+| settings | key PK, value |
+
+IPC 通道常量在 `src/shared/types.ts` 的 `IPC_CHANNELS` 定义。
+
+## 模块进度
+
+| 模块 | 内容 | 状态 |
+|------|------|------|
+| 0 | 脚手架 + 主题系统 + Git 双分支 | ✅ done |
+| 1 | 数据层（表 + DAO + IPC） | ✅ done |
+| 2 | 每日计划列表（PlanList/PlanCard/PlanAddInput） | ✅ done |
+| 3 | 正向计时 | ⬜ |
+| 4 | 时长圆环可视化 | ⬜ |
+| 5 | 桌宠（Live2D 兽耳娘） | ⬜ |
+
+## 分支策略
+
+- `main` — 发布/稳定
+- `dev` — 日常开发（当前）
