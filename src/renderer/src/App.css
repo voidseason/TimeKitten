@@ -5,106 +5,52 @@
   height: 100%;
 }
 
-.app__body {
+/* 两栏布局 */
+.app__layout {
   flex: 1;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  overflow: auto;
-}
-
-.welcome {
-  width: min(560px, 100%);
-  padding: 36px 40px;
-  text-align: center;
-  animation: rise 0.5s ease both;
-}
-
-.welcome__badge {
-  display: inline-block;
-  padding: 4px 12px;
-  font-size: 12px;
-  border-radius: 999px;
-  color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 16%, transparent);
-  border: 1px solid var(--color-border);
-  margin-bottom: 18px;
-}
-
-.welcome__title {
-  font-size: 40px;
-  font-weight: 800;
-  letter-spacing: 0.01em;
-  margin-bottom: 10px;
-}
-
-.welcome__accent {
-  background: linear-gradient(120deg, var(--color-primary), var(--color-accent));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.welcome__subtitle {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  line-height: 1.7;
-  margin-bottom: 24px;
-}
-
-.welcome__roadmap {
-  list-style: none;
-  text-align: left;
-  display: grid;
-  gap: 8px;
-  margin: 0 auto 26px;
-  width: fit-content;
-  font-size: 13.5px;
-  color: var(--color-text-muted);
-}
-
-.welcome__roadmap li {
-  position: relative;
-  padding-left: 24px;
-}
-
-.welcome__roadmap li::before {
-  content: '○';
-  position: absolute;
-  left: 0;
-  color: var(--color-text-muted);
-}
-
-.welcome__roadmap li.done {
-  color: var(--color-text);
-}
-
-.welcome__roadmap li.done::before {
-  content: '✓';
-  color: var(--color-success);
-  font-weight: 700;
-}
-
-.welcome__palette {
   display: flex;
+  overflow: hidden;
+}
+
+.app__sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.app__main {
+  flex: 1;
+  margin: 14px 14px 14px 0;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  display: flex;
+  overflow: hidden;
+}
+
+.app__placeholder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
   gap: 8px;
+  color: var(--color-text-muted);
 }
 
-.welcome__swatch {
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+.app__placeholder-icon {
+  font-size: 48px;
+  margin-bottom: 8px;
+  opacity: 0.6;
 }
 
-@keyframes rise {
-  from {
-    opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.app__placeholder-text {
+  font-size: 15px;
+}
+
+.app__placeholder-hint {
+  font-size: 12px;
+  opacity: 0.55;
 }
