@@ -19,7 +19,13 @@
 - UI：二次元通透风（玻璃拟态 + 柔光渐变 + 描边），主题/皮肤系统可替换
 - 包管理：npm
 
-## 快速开始
+## 安装与使用
+
+从 [Releases]() 页面下载最新 `.exe` 安装包，双击安装即可。
+
+> 安装包输出到 `release/` 目录。
+
+## 面向开发者：从源码构建
 
 ### 第一步：检查系统环境变量（重要！）
 
@@ -54,13 +60,13 @@ npm install
 npx @electron/rebuild
 ```
 
-### 第四步：运行
+### 第四步：启动与打包
 
 ```bash
-npm run dev      # 开发模式（HMR），同时启动主窗口 + dev server
-npm run typecheck # 类型检查
-npm run build    # 构建
-npm run package:win  # 打包 Windows 安装包（输出到 release/）
+npm run dev         # 开发模式（HMR 热更新）
+npm run typecheck   # 类型检查
+npm run build       # 构建
+npm run package:win # 打包 Windows 安装包（输出到 release/）
 ```
 
 ## 常见环境问题
