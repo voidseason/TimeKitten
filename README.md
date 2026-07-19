@@ -38,22 +38,54 @@ npm run build    # 构建
 npm run package:win  # 打包 Windows 安装包（输出到 release/）
 ```
 
-### 桌宠图片配置
+### 桌宠图片配置（开源使用者必读）
 
-桌宠使用自定义角色立绘（圆形头像框展示），图片放在 `assets/pet/` 目录：
+桌宠使用**你自己的角色立绘**（圆形头像框展示）。项目**不自带任何图片**，你需要自己准备。
 
-| 文件名 | 形态名 |
-|--------|--------|
-| `图片4.png` | 水手服（默认） |
-| `图片1.png` | 元气马尾 |
-| `图片3.png` | 悠闲时刻 |
-| `图片2.png` | 温柔一面 |
-| `图片5.png` | 闪耀盛装 |
+**最低配置（1 张图就能跑）：**
 
-- 计时中每 30 分钟自动切换下一形态（`src/shared/petForms.ts` → `PET_FORM_ROTATE_MINUTES` 可调）
-- 非计时时通过桌宠菜单手动轮播
-- 支持 PNG/JPG/WEBP/GIF 格式
-- 图片不进 Git（.gitignore 已忽略），打包时通过 `extraResources` 复制
+1. 把一张图片放进 `assets/pet/`，比如 `my-character.png`
+2. 打开 `src/shared/petForms.ts`，把 `file` 改成你的文件名，几个形态就写几条：
+
+```ts
+// 示例：只用一张图
+export const PET_FORM_ROTATE_MINUTES = 30 // 计时中每30分钟自动切换形态
+
+export const PET_FORMS: PetForm[] = [
+  {
+    id: 'default',
+    name: '我的角色',
+    file: 'my-character.png',   // ← 改这里
+    unlockSeconds: 0
+  }
+]
+```
+
+**多形态（5 张图轮播）：**
+
+```ts
+export const PET_FORM_ROTATE_MINUTES = 30
+
+export const PET_FORMS: PetForm[] = [
+  { id: 'form1', name: '默认形态', file: 'char1.png', unlockSeconds: 0 },
+  { id: 'form2', name: '换装1',    file: 'char2.png', unlockSeconds: 0 },
+  { id: 'form3', name: '换装2',    file: 'char3.png', unlockSeconds: 0 },
+  // 想要几个写几个
+]
+```
+
+**换装机制：**
+- 计时中：每 `PET_FORM_ROTATE_MINUTES` 分钟自动切换到下一个形态
+- 计时外：点桌宠 → 菜单 →"切换形态"手动轮播
+- 不改代码的话，**放 1 张图也能正常用**（只有一个形态，轮播无效果而已）
+
+**图片要求：**
+- 支持 PNG / JPG / WEBP / GIF
+- 建议正方形成比例的图（圆形头像框裁切后更美观）
+- 建议透明背景 PNG（非强制，无背景更通透）
+- 图片放好后重启 `npm run dev` 生效
+
+> **没放图会怎样？** 桌宠显示 🐾 占位符，功能完全正常，不会报错或崩溃。放图后立绘才显示。
 
 ## 目录结构
 
