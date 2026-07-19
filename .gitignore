@@ -23,6 +23,9 @@ Thumbs.db
 !.vscode/extensions.json
 .idea/
 
+# Claude 本地设置
+.claude/settings.local.json
+
 # 本地数据库（运行时生成）
 *.sqlite
 *.sqlite-journal
