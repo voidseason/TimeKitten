@@ -27,30 +27,42 @@
   backdrop-filter: blur(var(--blur));
   -webkit-backdrop-filter: blur(var(--blur));
   display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-.app__placeholder {
-  flex: 1;
+/* 右侧标签栏 */
+.app__tabs {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  gap: 0;
+  padding: 8px 16px 0;
+  flex-shrink: 0;
+}
+
+.app__tab {
+  padding: 7px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
   color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.2s, border-color 0.2s;
 }
 
-.app__placeholder-icon {
-  font-size: 48px;
-  margin-bottom: 8px;
-  opacity: 0.6;
+.app__tab--active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
-.app__placeholder-text {
-  font-size: 15px;
+.app__tab:hover:not(.app__tab--active) {
+  color: var(--color-text);
 }
 
-.app__placeholder-hint {
-  font-size: 12px;
-  opacity: 0.55;
+/* 右侧内容区 */
+.app__main-body {
+  flex: 1;
+  overflow: hidden;
 }
