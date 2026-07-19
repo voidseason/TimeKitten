@@ -1,0 +1,70 @@
+/* 全局基础样式。颜色一律用主题注入的 CSS 变量，实现换肤零改动。 */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  color: var(--color-text);
+  /* 通透风：底色 + 双柔光径向渐变 */
+  background:
+    radial-gradient(
+      120% 80% at 15% 0%,
+      color-mix(in srgb, var(--color-primary) 22%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      110% 90% at 100% 100%,
+      color-mix(in srgb, var(--color-accent) 20%, transparent),
+      transparent 55%
+    ),
+    linear-gradient(160deg, var(--color-bg), var(--color-bg-alt));
+  background-attachment: fixed;
+  overflow: hidden;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 玻璃拟态面板通用类 */
+.glass {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(var(--blur));
+  -webkit-backdrop-filter: blur(var(--blur));
+  box-shadow: var(--shadow);
+}
+
+/* 顶部可拖拽区域（无边框窗口用） */
+.drag-region {
+  -webkit-app-region: drag;
+}
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
