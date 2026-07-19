@@ -4,14 +4,15 @@
 
 ## 技术栈与运行
 
-- Electron v33 + React 18 + TypeScript 5.6
+- Electron v35 + React 18 + TypeScript 5.6
 - electron-vite（构建/HMR）+ electron-builder（打包 Windows）
-- better-sqlite3（数据层，WAL 模式）
+- better-sqlite3（数据层，WAL 模式，需 `@electron/rebuild` 编译原生模块）
 - dnd-kit（拖拽排序）、Live2D（桌宠动画，模块5）
 - npm 包管理
 
 ```bash
 npm install      # 安装依赖（需要 ELECTRON_MIRROR 加速，见下文）
+npx @electron/rebuild  # 重编译 better-sqlite3 原生模块匹配 Electron 版本
 npm run dev      # 开发模式（HMR），启动窗口 + dev server
 npm run build    # 构建
 npm run typecheck # 类型检查
@@ -21,6 +22,11 @@ npm run typecheck # 类型检查
 ```powershell
 $env:ELECTRON_MIRROR="https://registry.npmmirror.com/-/binary/electron/"
 ```
+
+## 常见环境问题
+
+- `ELECTRON_RUN_AS_NODE=1` 环境变量 → Electron 永远以 Node 模式运行，内置 `electron` 模块不可用。删掉该环境变量后重启终端。
+- `NODE_MODULE_VERSION mismatch` → better-sqlite3 与 Electron 内置 Node 版本不匹配，运行 `npx @electron/rebuild`。
 
 ## 目录结构
 
@@ -99,6 +105,12 @@ IPC 通道常量在 `src/shared/types.ts` 的 `IPC_CHANNELS` 定义。
 - 形态配置在 `src/shared/petForms.ts`，计时中每 `PET_FORM_ROTATE_MINUTES`（默认 30）分钟自动轮播下一张；非计时时通过菜单手动轮播
 - 计时状态通过 `pet:timer-state` 通道：主界面 → 主进程 → 桌宠窗口
 - 打包：`electron-builder` 的 `extraResources` 把 `assets/pet` 复制进 `resources/`
+
+## 开发踩坑记录
+
+- **`ELECTRON_RUN_AS_NODE` 环境变量**：系统存在此变量时 Electron 以纯 Node.js 模式运行，`electron.app` 等为 `undefined`。需删除此变量并重启终端。
+- **`better-sqlite3` 原生模块**：每次换 Electron 版本需 `npx @electron/rebuild` 重新编译，否则 `NODE_MODULE_VERSION` 不匹配（`ERR_DLOPEN_FAILED`）。
+- **Electron 下载**：国内建议用 `ELECTRON_MIRROR=npmmirror` 加速。
 
 ## 分支策略
 

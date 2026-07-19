@@ -11,7 +11,7 @@
 
 ## 技术栈
 
-- **Electron 33 + React 18 + TypeScript 5.6**
+- **Electron 35 + React 18 + TypeScript 5.6**
 - 构建：electron-vite（开发 HMR）+ electron-builder（打包 Windows）
 - 数据：better-sqlite3（WAL 模式，本地库）
 - 拖拽：@dnd-kit（计划排序）
@@ -21,15 +21,40 @@
 
 ## 快速开始
 
-### 安装依赖
+### 第一步：检查系统环境变量（重要！）
 
-```bash
+```powershell
+# 检查是否有 ELECTRON_RUN_AS_NODE 环境变量
+[Environment]::GetEnvironmentVariable('ELECTRON_RUN_AS_NODE', 'User')
+[Environment]::GetEnvironmentVariable('ELECTRON_RUN_AS_NODE', 'Machine')
+```
+
+> ⚠️ **如果你的系统存在 `ELECTRON_RUN_AS_NODE=1` 环境变量，必须先删除它！**
+> 
+> 这个变量会让 Electron 强制以纯 Node.js 模式启动，永远不进入桌面/浏览器模式，
+> 导致 `require('electron').app` 为 `undefined`。
+> 
+> 删除方法：Windows 设置 → 系统 → 关于 → 高级系统设置 → 环境变量，
+> 在"用户变量"和"系统变量"里分别找 `ELECTRON_RUN_AS_NODE`，找到就删掉。
+> 删完后**重启终端**（必须重新打开 PowerShell）。
+
+### 第二步：安装依赖
+
+```powershell
 # 建议用国内镜像加速 Electron 二进制下载
 $env:ELECTRON_MIRROR="https://registry.npmmirror.com/-/binary/electron/"
 npm install
 ```
 
-### 开发
+### 第三步：重编译原生模块
+
+`better-sqlite3` 包含 C++ 原生模块，必须匹配 Electron 内置的 Node.js 版本：
+
+```powershell
+npx @electron/rebuild
+```
+
+### 第四步：运行
 
 ```bash
 npm run dev      # 开发模式（HMR），同时启动主窗口 + dev server
@@ -37,6 +62,37 @@ npm run typecheck # 类型检查
 npm run build    # 构建
 npm run package:win  # 打包 Windows 安装包（输出到 release/）
 ```
+
+## 常见环境问题
+
+### `Error: Cannot read properties of undefined (reading 'requestSingleInstanceLock')`
+
+- **原因**：系统环境变量 `ELECTRON_RUN_AS_NODE=1` 导致 Electron 以 Node.js 模式运行，内置 `electron` 模块（`app`, `BrowserWindow` 等）不可用。
+- **解决**：删除系统环境变量中的 `ELECTRON_RUN_AS_NODE`（见上方"第一步"），重启终端。
+
+### `NODE_MODULE_VERSION mismatch`（如 127 vs 133）
+
+- **原因**：`better-sqlite3` 的原生模块是针对系统 Node.js 编译的，与 Electron 内置的 Node.js 版本不匹配。
+- **解决**：
+  ```powershell
+  Remove-Item node_modules\better-sqlite3 -Recurse -Force
+  npm install better-sqlite3
+  npx @electron/rebuild -v 35.0.0 -m .
+  ```
+
+### Electron 二进制下载缓慢或失败
+
+- **原因**：`npm install electron` 默认从 GitHub Releases 下载 Electron 二进制文件，国内网络可能不稳定。
+- **解决**：设置镜像环境变量：
+  ```powershell
+  $env:ELECTRON_MIRROR="https://registry.npmmirror.com/-/binary/electron/"
+  npm install electron@35.0.0
+  ```
+
+### 安装了新 Electron 版本后启动不了
+
+- **原因**：每次更换 Electron 版本，都需要重新编译原生模块。
+- **解决**：运行 `npx @electron/rebuild`。
 
 ### 桌宠图片配置（开源使用者必读）
 

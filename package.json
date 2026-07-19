@@ -29,7 +29,13 @@
       {
         "from": "assets/pet",
         "to": "assets/pet",
-        "filter": ["**/*.png", "**/*.jpg", "**/*.jpeg", "**/*.webp", "**/*.gif"]
+        "filter": [
+          "**/*.png",
+          "**/*.jpg",
+          "**/*.jpeg",
+          "**/*.webp",
+          "**/*.gif"
+        ]
       }
     ],
     "win": {
@@ -43,12 +49,13 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@electron/rebuild": "^3.7.2",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^22.9.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
-    "electron": "^33.2.0",
+    "electron": "^35.0.0",
     "electron-builder": "^25.1.8",
     "electron-vite": "^2.3.0",
     "react": "^18.3.1",
