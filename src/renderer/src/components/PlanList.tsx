@@ -66,7 +66,13 @@ function SortablePlanCard({
   )
 }
 
-export function PlanList(): JSX.Element {
+interface PlanListProps {
+  selectedPlanId: number | null
+  onSelectPlan: (id: number | null) => void
+  refreshKey?: number
+}
+
+export function PlanList({ selectedPlanId, onSelectPlan, refreshKey }: PlanListProps): JSX.Element {
   const { theme } = useTheme()
   const [plans, setPlans] = useState<Plan[]>([])
   const [todayStats, setTodayStats] = useState<PlanTimeSummary[]>([])
@@ -90,10 +96,11 @@ export function PlanList(): JSX.Element {
     setTodayStats(stats)
   }, [])
 
+  // 首次加载 + refreshKey 变化时刷新
   useEffect(() => {
     loadPlans()
     loadToday()
-  }, [loadPlans, loadToday])
+  }, [loadPlans, loadToday, refreshKey])
 
   const todayMap = useMemo(() => {
     const m = new Map<number, number>()
@@ -182,9 +189,9 @@ export function PlanList(): JSX.Element {
                   key={p.id}
                   plan={p}
                   todayMinutes={todayMap.get(p.id) ?? 0}
-                  isActive={false}
+                  isActive={p.id === selectedPlanId}
                   onSelect={() => {
-                    /* 模块3：计时逻辑 */
+                    onSelectPlan(p.id === selectedPlanId ? null : p.id)
                   }}
                   onRename={handleRename}
                   onDelete={handleDelete}
