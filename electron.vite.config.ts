@@ -1,12 +1,12 @@
 import { resolve } from 'path'
-import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
+import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   main: {
-    plugins: [externalizeDepsPlugin()],
     build: {
       rollupOptions: {
+        external: ['electron', 'better-sqlite3'],
         input: {
           index: resolve(__dirname, 'src/main/index.ts')
         }
@@ -14,9 +14,9 @@ export default defineConfig({
     }
   },
   preload: {
-    plugins: [externalizeDepsPlugin()],
     build: {
       rollupOptions: {
+        external: ['electron'],
         input: {
           index: resolve(__dirname, 'src/preload/index.ts')
         }
@@ -34,9 +34,7 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: {
-          // 主界面
           index: resolve(__dirname, 'src/renderer/index.html'),
-          // 桌宠窗口（模块5使用，独立入口）
           pet: resolve(__dirname, 'src/renderer/pet.html')
         }
       }

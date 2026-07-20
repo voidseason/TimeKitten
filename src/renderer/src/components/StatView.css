@@ -1,0 +1,48 @@
+.statview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  height: 100%;
+  padding: 22px 24px;
+  overflow-y: auto;
+}
+
+.statview__tabs {
+  display: flex;
+  gap: 0;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+  padding: 3px;
+}
+
+.statview__tab {
+  padding: 6px 18px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.2s, color 0.2s;
+}
+
+.statview__tab--active {
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.statview__tab:hover:not(.statview__tab--active) {
+  color: var(--color-text);
+}
+
+.statview__loading {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}

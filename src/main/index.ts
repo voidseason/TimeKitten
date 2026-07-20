@@ -1,6 +1,8 @@
 import { app, BrowserWindow } from 'electron'
 import { createMainWindow } from './windows/mainWindow'
 import { registerWindowControlIpc } from './ipc/windowControls'
+import { registerDbIpc } from './ipc/dbHandlers'
+import { registerPetIpc } from './ipc/petHandlers'
 
 // 单实例锁：再次启动时聚焦已有窗口，而不是开新进程
 const gotLock = app.requestSingleInstanceLock()
@@ -17,6 +19,8 @@ if (!gotLock) {
 
   app.whenReady().then(() => {
     registerWindowControlIpc()
+    registerDbIpc()
+    registerPetIpc()
     createMainWindow()
 
     app.on('activate', () => {

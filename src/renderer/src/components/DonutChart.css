@@ -1,0 +1,56 @@
+.donut {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+.donut svg {
+  position: absolute;
+  inset: 0;
+}
+
+.donut__segment {
+  transition: opacity 0.25s ease;
+}
+
+.donut__segment:hover {
+  opacity: 0.75;
+}
+
+/* 扇区出场动画 */
+@keyframes sweep-in {
+  from {
+    stroke-dasharray: 0 1000;
+  }
+}
+
+.donut__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  z-index: 1;
+}
+
+.donut__total-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.donut__total-value {
+  font-size: 26px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.donut__empty-icon {
+  font-size: 28px;
+  margin-bottom: 4px;
+}
+
+.donut__empty-text {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}

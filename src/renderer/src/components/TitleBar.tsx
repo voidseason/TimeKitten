@@ -1,9 +1,21 @@
+import { useState } from 'react'
 import { useTheme } from '../theme/ThemeProvider'
 import './TitleBar.css'
 
-/** 无边框窗口的自绘标题栏：可拖拽 + 主题切换 + 窗口控制按钮 */
+/** 无边框窗口的自绘标题栏：可拖拽 + 桌宠开关 + 主题切换 + 窗口控制按钮 */
 export function TitleBar(): JSX.Element {
-  const { theme, themeId, setThemeId, available } = useTheme()
+  const { themeId, setThemeId, available } = useTheme()
+  const [petOn, setPetOn] = useState(false)
+
+  const togglePet = async (): Promise<void> => {
+    if (petOn) {
+      await window.api.pet.close()
+      setPetOn(false)
+    } else {
+      await window.api.pet.open()
+      setPetOn(true)
+    }
+  }
 
   return (
     <header className="titlebar drag-region">
@@ -15,6 +27,22 @@ export function TitleBar(): JSX.Element {
       </div>
 
       <div className="titlebar__actions no-drag">
+        <button
+          className={`titlebar__pet ${petOn ? 'titlebar__pet--on' : ''}`}
+          onClick={togglePet}
+          title={petOn ? '关闭桌宠' : '开启桌宠'}
+        >
+          {petOn ? '🐾 桌宠开' : '🐾 桌宠'}
+        </button>
+
+        <button
+          className="titlebar__settings"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-settings'))}
+          title="设置"
+        >
+          ⚙️
+        </button>
+
         <select
           className="titlebar__theme"
           value={themeId}
