@@ -68,4 +68,17 @@ export function registerDbIpc(): void {
     if (result.canceled || result.filePaths.length === 0) return null
     return result.filePaths[0]
   })
+
+  // ---------- 日记 ----------
+  ipcMain.handle(IPC_CHANNELS.JOURNAL_UPSERT, (_e, date: string, content: string) => {
+    return dao.journalUpsert(date, content)
+  })
+
+  ipcMain.handle(IPC_CHANNELS.JOURNAL_GET, (_e, date: string) => {
+    return dao.journalGet(date)
+  })
+
+  ipcMain.handle(IPC_CHANNELS.JOURNAL_DELETE, (_e, date: string) => {
+    return dao.journalDelete(date)
+  })
 }

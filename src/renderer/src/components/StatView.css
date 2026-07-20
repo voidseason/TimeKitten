@@ -10,6 +10,7 @@
 
 .statview__tabs {
   display: flex;
+  align-items: center;
   gap: 0;
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--color-text) 6%, transparent);
@@ -45,4 +46,48 @@
   place-items: center;
   color: var(--color-text-muted);
   font-size: 14px;
+}
+
+.statview__spacer {
+  flex: 1;
+}
+
+.statview__datepicker {
+  height: 28px;
+  padding: 0 8px;
+  margin-left: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+
+.statview__datepicker::-webkit-calendar-picker-indicator {
+  filter: invert(var(--cal-invert, 0));
+  cursor: pointer;
+}
+
+.statview__today-btn {
+  height: 28px;
+  padding: 0 12px;
+  margin-left: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.statview__today-btn:hover {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: var(--color-primary);
 }

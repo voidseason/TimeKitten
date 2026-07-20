@@ -82,8 +82,20 @@ export const IPC_CHANNELS = {
   // 数据路径
   GET_DATA_PATH: 'db:get-data-path',
   SET_DATA_PATH: 'db:set-data-path',
-  PICK_DATA_PATH: 'db:pick-data-path'
+  PICK_DATA_PATH: 'db:pick-data-path',
+
+  // 日记
+  JOURNAL_UPSERT: 'db:journal:upsert',
+  JOURNAL_GET: 'db:journal:get',
+  JOURNAL_DELETE: 'db:journal:delete'
 } as const
+
+/** 每日日记条目 */
+export interface JournalEntry {
+  date: string // 'YYYY-MM-DD'
+  content: string
+  updated_at: string
+}
 
 /** 桌宠形态定义（图片文件 + 解锁阈值） */
 export interface PetForm {

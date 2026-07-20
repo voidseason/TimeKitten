@@ -6,23 +6,25 @@ import './StatView.css'
 
 type RangeType = 'day' | 'week' | 'month'
 
-function getRange(range: RangeType): { from: string; to: string } {
-  const now = new Date()
-  const y = now.getFullYear()
-  const m = String(now.getMonth() + 1).padStart(2, '0')
-  const d = String(now.getDate()).padStart(2, '0')
+/** 将 Date 格式化为 YYYY-MM-DD */
+function fmtDate(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
 
+function getRange(range: RangeType, baseDate: Date): { from: string; to: string } {
   if (range === 'day') {
-    const base = `${y}-${m}-${d}`
+    const base = fmtDate(baseDate)
     return { from: `${base}T00:00:00`, to: `${base}T23:59:59` }
   }
 
   if (range === 'week') {
-    // 本周一 ~ 本周日
-    const dayOfWeek = now.getDay()
+    const dayOfWeek = baseDate.getDay()
     const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
-    const monday = new Date(now)
-    monday.setDate(now.getDate() + mondayOffset)
+    const monday = new Date(baseDate)
+    monday.setDate(baseDate.getDate() + mondayOffset)
     monday.setHours(0, 0, 0, 0)
     const sunday = new Date(monday)
     sunday.setDate(monday.getDate() + 6)
@@ -41,10 +43,11 @@ function getRange(range: RangeType): { from: string; to: string } {
   }
 
   // month
-  const base = `${y}-${m}`
+  const y = baseDate.getFullYear()
+  const m = String(baseDate.getMonth() + 1).padStart(2, '0')
   return {
-    from: `${base}-01T00:00:00`,
-    to: `${base}-31T23:59:59`
+    from: `${y}-${m}-01T00:00:00`,
+    to: `${y}-${m}-31T23:59:59`
   }
 }
 
@@ -58,20 +61,32 @@ export function StatView(): JSX.Element {
   const [range, setRange] = useState<RangeType>('day')
   const [data, setData] = useState<PlanTimeSummary[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedDate, setSelectedDate] = useState(fmtDate(new Date()))
 
-  const load = useCallback(async (r: RangeType) => {
+  const load = useCallback(async (r: RangeType, dateStr: string) => {
     setLoading(true)
-    const { from, to } = getRange(r)
+    const baseDate = new Date(dateStr + 'T00:00:00')
+    const { from, to } = getRange(r, baseDate)
     const stats = await window.api.db.sessionGetTimeRange({ from, to })
     setData(stats)
     setLoading(false)
   }, [])
 
   useEffect(() => {
-    load(range)
-  }, [range, load])
+    load(range, selectedDate)
+  }, [range, selectedDate, load])
 
   const totalSeconds = useMemo(() => data.reduce((s, d) => s + d.total_seconds, 0), [data])
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedDate(e.target.value)
+  }
+
+  const goToday = () => {
+    const today = fmtDate(new Date())
+    setSelectedDate(today)
+    setRange('day')
+  }
 
   return (
     <div className="statview">
@@ -86,6 +101,17 @@ export function StatView(): JSX.Element {
             {label}
           </button>
         ))}
+        <div className="statview__spacer" />
+        <input
+          type="date"
+          className="statview__datepicker"
+          value={selectedDate}
+          onChange={handleDateChange}
+          title="选择查看日期"
+        />
+        <button className="statview__today-btn" onClick={goToday} title="回到今天">
+          今天
+        </button>
       </div>
 
       {loading ? (

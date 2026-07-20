@@ -3,6 +3,7 @@ import { app } from 'electron'
 import { join } from 'path'
 import { readFileSync, writeFileSync, existsSync, mkdirSync, copyFileSync } from 'fs'
 import { SCHEMA_SQL } from './schema'
+import { migrateOldDateFormat } from './dao'
 
 let db: Database.Database | null = null
 let currentDataPath: string | null = null
@@ -66,6 +67,7 @@ export function setDataPath(newPath: string): boolean {
     db.pragma('journal_mode = WAL')
     db.pragma('foreign_keys = ON')
     db.exec(SCHEMA_SQL)
+    migrateOldDateFormat()
     currentDataPath = newPath
 
     return true
@@ -79,6 +81,7 @@ export function setDataPath(newPath: string): boolean {
       db.pragma('journal_mode = WAL')
       db.pragma('foreign_keys = ON')
       db.exec(SCHEMA_SQL)
+      migrateOldDateFormat()
     } catch {
       db = null
       currentDataPath = null
@@ -104,6 +107,7 @@ export function getDb(): Database.Database {
   db.pragma('journal_mode = WAL')
   db.pragma('foreign_keys = ON')
   db.exec(SCHEMA_SQL)
+  migrateOldDateFormat()
 
   return db
 }
