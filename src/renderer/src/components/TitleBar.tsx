@@ -35,6 +35,14 @@ export function TitleBar(): JSX.Element {
           {petOn ? '🐾 桌宠开' : '🐾 桌宠'}
         </button>
 
+        <button
+          className="titlebar__settings"
+          onClick={() => window.dispatchEvent(new CustomEvent('open-settings'))}
+          title="设置"
+        >
+          ⚙️
+        </button>
+
         <select
           className="titlebar__theme"
           value={themeId}

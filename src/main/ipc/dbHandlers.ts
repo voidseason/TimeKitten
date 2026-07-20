@@ -1,6 +1,7 @@
-import { ipcMain } from 'electron'
+import { ipcMain, dialog } from 'electron'
 import { IPC_CHANNELS } from '../../shared/types'
 import * as dao from '../db/dao'
+import { getDataPath, setDataPath } from '../db/connection'
 
 /**
  * 注册所有数据库相关 IPC 处理函数。
@@ -48,5 +49,23 @@ export function registerDbIpc(): void {
 
   ipcMain.handle(IPC_CHANNELS.SETTING_SET, (_e, key: string, value: string) => {
     dao.setSetting(key, value)
+  })
+
+  // ---------- 数据路径 ----------
+  ipcMain.handle(IPC_CHANNELS.GET_DATA_PATH, () => {
+    return getDataPath()
+  })
+
+  ipcMain.handle(IPC_CHANNELS.SET_DATA_PATH, (_e, newPath: string) => {
+    return setDataPath(newPath)
+  })
+
+  ipcMain.handle(IPC_CHANNELS.PICK_DATA_PATH, async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory', 'createDirectory'],
+      title: '选择数据存储目录'
+    })
+    if (result.canceled || result.filePaths.length === 0) return null
+    return result.filePaths[0]
   })
 }

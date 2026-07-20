@@ -3,6 +3,7 @@ import { TitleBar } from './components/TitleBar'
 import { PlanList } from './components/PlanList'
 import { TimerPanel } from './components/TimerPanel'
 import { StatView } from './components/StatView'
+import { SettingsModal } from './components/SettingsModal'
 import './App.css'
 
 type RightTab = 'timer' | 'stats'
@@ -12,6 +13,14 @@ export function App(): JSX.Element {
   const [plans, setPlans] = useState<import('@shared/types').Plan[]>([])
   const [refreshKey, setRefreshKey] = useState(0)
   const [rightTab, setRightTab] = useState<RightTab>('timer')
+  const [settingsVisible, setSettingsVisible] = useState(false)
+
+  // 监听标题栏的设置按钮事件
+  useEffect(() => {
+    const handler = () => setSettingsVisible(true)
+    window.addEventListener('open-settings', handler)
+    return () => window.removeEventListener('open-settings', handler)
+  }, [])
 
   // 加载计划列表（在 App 层也缓存一份，用于查找选中的 Plan）
   const loadPlansForSelection = useCallback(async () => {
@@ -79,6 +88,7 @@ export function App(): JSX.Element {
           </div>
         </main>
       </div>
+      <SettingsModal visible={settingsVisible} onClose={() => setSettingsVisible(false)} />
     </div>
   )
 }

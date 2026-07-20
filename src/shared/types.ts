@@ -77,7 +77,12 @@ export const IPC_CHANNELS = {
   PET_GET_ASSET: 'pet:get-asset',
   PET_LIST_ASSETS: 'pet:list-assets',
   // 主进程 → 桌宠：计时状态变化广播
-  PET_TIMER_STATE: 'pet:timer-state'
+  PET_TIMER_STATE: 'pet:timer-state',
+
+  // 数据路径
+  GET_DATA_PATH: 'db:get-data-path',
+  SET_DATA_PATH: 'db:set-data-path',
+  PICK_DATA_PATH: 'db:pick-data-path'
 } as const
 
 /** 桌宠形态定义（图片文件 + 解锁阈值） */

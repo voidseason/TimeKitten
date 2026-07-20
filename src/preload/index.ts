@@ -54,7 +54,17 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.SETTING_GET, key),
 
     settingSet: (key: string, value: string): Promise<void> =>
-      ipcRenderer.invoke(IPC_CHANNELS.SETTING_SET, key, value)
+      ipcRenderer.invoke(IPC_CHANNELS.SETTING_SET, key, value),
+
+    // 数据路径
+    getDataPath: (): Promise<string> =>
+      ipcRenderer.invoke(IPC_CHANNELS.GET_DATA_PATH),
+
+    setDataPath: (newPath: string): Promise<boolean> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SET_DATA_PATH, newPath),
+
+    pickDataPath: (): Promise<string | null> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PICK_DATA_PATH)
   },
   pet: {
     // 窗口控制
