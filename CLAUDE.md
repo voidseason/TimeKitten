@@ -117,5 +117,7 @@ IPC 通道常量在 `src/shared/types.ts` 的 `IPC_CHANNELS` 定义。
 - `main` — 发布/稳定
 - `dev` — 日常开发（当前）
 
-## git提交策略
+## Git 提交策略
 - 每完成一个模块进行一次提交
+- 大版本打 annotated tag（`git tag -a v0.3.0 -m "..."`）
+- tag 命名：`v<major>.<minor>.<patch>`
