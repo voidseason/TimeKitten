@@ -9,7 +9,7 @@
 - 📊 **时长可视化**：Doughnut 圆环图 + 排行榜，支持日/周/月 + 自定义时间范围切换
 - 📝 **每日日记**：Markdown 编辑/预览，自动保存到数据库
 - 🐾 **桌宠**：透明置顶窗口悬浮桌面
-  - **v0.3+**：帧序列动画（idle/active/happy 三态），5 形态 × 130 帧，requestAnimationFrame 驱动
+  - **v0.3+**：帧序列动画（idle/active/happy 三态），5 形态 × 130 帧，setInterval 固定间隔驱动
   - **v0.2**：5 张静态图 + CSS 呼吸/摇摆动效，30 分钟自动轮播
   - 圆形玻璃拟态头像框 + 光晕脉冲 + 悬浮粒子特效，可拖拽移动
 
@@ -19,7 +19,7 @@
 - 构建：electron-vite（开发 HMR）+ electron-builder（打包 Windows）
 - 数据：better-sqlite3（WAL 模式，本地库）
 - 拖拽：@dnd-kit（计划排序）
-- 桌宠：独立透明 BrowserWindow + requestAnimationFrame 帧动画 + CSS 动效 + IPC 图片加载
+- 桌宠：独立透明 BrowserWindow + setInterval 帧动画 + CSS 动效 + IPC 图片加载
 - UI：二次元通透风（玻璃拟态 + 柔光渐变 + 描边），主题/皮肤系统可替换
 - 包管理：npm
 
@@ -31,7 +31,7 @@
 
 | 版本 | Tag | 桌宠形态 | 说明 |
 |------|-----|---------|------|
-| **v0.3** | `v0.3.0` | 🎬 帧序列动画 | 5 形态 × 3 动画状态（idle/active/happy），130 帧 requestAnimationFrame 驱动 |
+| **v0.3** | `v0.3.0` | 🎬 帧序列动画 | 5 形态 × 3 动画状态（idle/active/happy），130 帧 setInterval 驱动 |
 | **v0.2** | `v0.2.0` | 🖼️ 5 张静态图 | CSS 呼吸/摇摆动效，30 分钟自动轮播，圆形玻璃头像框 |
 | **v0.1** | — | — | 计划 + 计时 + 统计核心功能（无桌宠） |
 
