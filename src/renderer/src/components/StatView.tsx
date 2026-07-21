@@ -1,17 +1,15 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import type { PlanTimeSummary } from '@shared/types'
+import { fmtDate } from '@shared/utils'
 import { DonutChart } from './DonutChart'
 import { StatLegend } from './StatLegend'
 import './StatView.css'
 
 type RangeType = 'day' | 'week' | 'month'
 
-/** 将 Date 格式化为 YYYY-MM-DD */
-function fmtDate(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
+/** 获取某个月的最后一天 */
+function lastDayOfMonth(y: number, m: number): number {
+  return new Date(y, m, 0).getDate()
 }
 
 function getRange(range: RangeType, baseDate: Date): { from: string; to: string } {
@@ -44,10 +42,12 @@ function getRange(range: RangeType, baseDate: Date): { from: string; to: string 
 
   // month
   const y = baseDate.getFullYear()
-  const m = String(baseDate.getMonth() + 1).padStart(2, '0')
+  const m = baseDate.getMonth() + 1
+  const mm = String(m).padStart(2, '0')
+  const last = lastDayOfMonth(y, m)
   return {
-    from: `${y}-${m}-01T00:00:00`,
-    to: `${y}-${m}-31T23:59:59`
+    from: `${y}-${mm}-01T00:00:00`,
+    to: `${y}-${mm}-${String(last).padStart(2, '0')}T23:59:59`
   }
 }
 

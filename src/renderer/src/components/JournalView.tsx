@@ -1,13 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { marked } from 'marked'
+import { fmtDate } from '@shared/utils'
 import './JournalView.css'
-
-function fmtDate(d: Date): string {
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
 
 export function JournalView(): JSX.Element {
   const [selectedDate, setSelectedDate] = useState(fmtDate(new Date()))
@@ -16,7 +10,12 @@ export function JournalView(): JSX.Element {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const lastSavedDateRef = useRef(selectedDate)
+  const contentRef = useRef(content)
+
+  // 始终保持 ref 与最新 content 同步，避免闭包捕获过期值
+  useEffect(() => {
+    contentRef.current = content
+  }, [content])
 
   // 加载日记
   const load = useCallback(async (date: string) => {
@@ -24,7 +23,6 @@ export function JournalView(): JSX.Element {
     setSaved(false)
     const entry = await window.api.db.journalGet(date)
     setContent(entry?.content ?? '')
-    lastSavedDateRef.current = date
     setLoading(false)
   }, [])
 
@@ -32,7 +30,7 @@ export function JournalView(): JSX.Element {
     load(selectedDate)
   }, [selectedDate, load])
 
-  // 防抖自动保存：编辑后 1.5 秒自动保存
+  // 防抖自动保存：编辑后 1.5 秒自动保存（通过 ref 获取最新 content）
   const scheduleSave = useCallback(() => {
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current)
@@ -40,11 +38,11 @@ export function JournalView(): JSX.Element {
     saveTimerRef.current = setTimeout(async () => {
       setSaving(true)
       setSaved(false)
-      await window.api.db.journalUpsert(selectedDate, content)
+      await window.api.db.journalUpsert(selectedDate, contentRef.current)
       setSaving(false)
       setSaved(true)
     }, 1500)
-  }, [selectedDate, content])
+  }, [selectedDate])
 
   // 手动保存 (Ctrl+S)
   const handleManualSave = useCallback(async () => {
@@ -54,10 +52,10 @@ export function JournalView(): JSX.Element {
     }
     setSaving(true)
     setSaved(false)
-    await window.api.db.journalUpsert(selectedDate, content)
+    await window.api.db.journalUpsert(selectedDate, contentRef.current)
     setSaving(false)
     setSaved(true)
-  }, [selectedDate, content])
+  }, [selectedDate])
 
   // 键盘快捷键
   useEffect(() => {
@@ -74,12 +72,11 @@ export function JournalView(): JSX.Element {
   // 切换日期前保存当前内容
   const handleDateChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newDate = e.target.value
-    // 立即保存当前内容
     if (saveTimerRef.current) {
       clearTimeout(saveTimerRef.current)
       saveTimerRef.current = null
     }
-    await window.api.db.journalUpsert(selectedDate, content)
+    await window.api.db.journalUpsert(selectedDate, contentRef.current)
     setSelectedDate(newDate)
   }
 
@@ -102,7 +99,6 @@ export function JournalView(): JSX.Element {
 
   return (
     <div className="journal">
-      {/* 顶部栏 */}
       <div className="journal__toolbar">
         <input
           type="date"
@@ -126,10 +122,12 @@ export function JournalView(): JSX.Element {
       </div>
 
       {loading ? (
-        <div className="journal__loading">加载中…</div>
+        <div className="journal__loading">
+          <div className="spinner" />
+          <span>加载中…</span>
+        </div>
       ) : (
         <div className="journal__editor">
-          {/* 左侧：Markdown 编辑区 */}
           <div className="journal__input-panel">
             <div className="journal__panel-header">📝 编辑</div>
             <textarea
@@ -139,7 +137,6 @@ export function JournalView(): JSX.Element {
               placeholder={isToday ? '记录今天的学习心得...# 标题\n- 列表\n**加粗**' : '这天没有日记，写点什么吧...'}
             />
           </div>
-          {/* 右侧：Markdown 预览区 */}
           <div className="journal__preview-panel">
             <div className="journal__panel-header">👁️ 预览</div>
             <div

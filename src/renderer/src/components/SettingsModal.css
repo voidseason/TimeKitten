@@ -134,9 +134,32 @@
   color: #6be0a0;
 }
 
-.settings-modal__actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 20px;
+/* 退场动画 */
+.settings-overlay--closing {
+  animation: settings-fade-out 0.18s ease both;
+}
+
+@keyframes settings-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.settings-modal--closing {
+  animation: settings-slide-out 0.18s ease both;
+}
+
+@keyframes settings-slide-out {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(12px); opacity: 0; }
+}
+
+/* 状态消息入场 */
+.settings-modal__error,
+.settings-modal__success {
+  animation: message-in 0.25s ease both;
+}
+
+@keyframes message-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }

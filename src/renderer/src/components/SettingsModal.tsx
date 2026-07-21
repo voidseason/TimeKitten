@@ -11,6 +11,7 @@ export function SettingsModal({ visible, onClose }: Props): JSX.Element | null {
   const [pendingPath, setPendingPath] = useState<string | null>(null)
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [errorMsg, setErrorMsg] = useState('')
+  const [closing, setClosing] = useState(false)
 
   useEffect(() => {
     if (visible) {
@@ -20,10 +21,19 @@ export function SettingsModal({ visible, onClose }: Props): JSX.Element | null {
         setStatus('idle')
         setErrorMsg('')
       })
+      setClosing(false)
     }
   }, [visible])
 
-  if (!visible) return null
+  const doClose = () => {
+    setClosing(true)
+    setTimeout(() => {
+      setClosing(false)
+      onClose()
+    }, 180)
+  }
+
+  if (!visible && !closing) return null
 
   const displayPath = pendingPath ?? dataPath
 
@@ -36,7 +46,7 @@ export function SettingsModal({ visible, onClose }: Props): JSX.Element | null {
 
   const handleSave = async (): Promise<void> => {
     if (!pendingPath || pendingPath === dataPath) {
-      onClose()
+      doClose()
       return
     }
     setStatus('saving')
@@ -45,7 +55,7 @@ export function SettingsModal({ visible, onClose }: Props): JSX.Element | null {
       setStatus('saved')
       setDataPath(pendingPath)
       setPendingPath(null)
-      setTimeout(() => onClose(), 800)
+      setTimeout(() => doClose(), 800)
     } else {
       setStatus('error')
       setErrorMsg('切换失败，请检查目标路径是否有写入权限')
@@ -53,8 +63,14 @@ export function SettingsModal({ visible, onClose }: Props): JSX.Element | null {
   }
 
   return (
-    <div className="settings-overlay" onClick={onClose}>
-      <div className="settings-modal glass" onClick={(e) => e.stopPropagation()}>
+    <div
+      className={`settings-overlay ${closing ? 'settings-overlay--closing' : ''}`}
+      onClick={doClose}
+    >
+      <div
+        className={`settings-modal glass ${closing ? 'settings-modal--closing' : ''}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2 className="settings-modal__title">⚙️ 设置</h2>
 
         <div className="settings-modal__section">
@@ -85,7 +101,7 @@ export function SettingsModal({ visible, onClose }: Props): JSX.Element | null {
         )}
 
         <div className="settings-modal__actions">
-          <button className="settings-modal__btn settings-modal__btn--secondary" onClick={onClose}>
+          <button className="settings-modal__btn settings-modal__btn--secondary" onClick={doClose}>
             取消
           </button>
           <button
