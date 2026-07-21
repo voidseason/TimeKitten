@@ -7,7 +7,8 @@ import type {
   TimeSession,
   TimeRangeQuery,
   PlanTimeSummary,
-  PetTimerState
+  PetTimerState,
+  JournalEntry
 } from '../shared/types'
 
 /**
@@ -64,7 +65,17 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.SET_DATA_PATH, newPath),
 
     pickDataPath: (): Promise<string | null> =>
-      ipcRenderer.invoke(IPC_CHANNELS.PICK_DATA_PATH)
+      ipcRenderer.invoke(IPC_CHANNELS.PICK_DATA_PATH),
+
+    // 日记
+    journalUpsert: (date: string, content: string): Promise<JournalEntry> =>
+      ipcRenderer.invoke(IPC_CHANNELS.JOURNAL_UPSERT, date, content),
+
+    journalGet: (date: string): Promise<JournalEntry | null> =>
+      ipcRenderer.invoke(IPC_CHANNELS.JOURNAL_GET, date),
+
+    journalDelete: (date: string): Promise<boolean> =>
+      ipcRenderer.invoke(IPC_CHANNELS.JOURNAL_DELETE, date)
   },
   pet: {
     // 窗口控制

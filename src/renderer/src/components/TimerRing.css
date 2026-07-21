@@ -12,6 +12,12 @@
 .ring__progress {
   transition: stroke-dashoffset 0.3s ease;
   filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-primary) 50%, transparent));
+  animation: ring-glow 2.5s ease-in-out infinite;
+}
+
+@keyframes ring-glow {
+  0%, 100% { filter: drop-shadow(0 0 8px color-mix(in srgb, var(--color-primary) 50%, transparent)); }
+  50% { filter: drop-shadow(0 0 16px color-mix(in srgb, var(--color-primary) 75%, transparent)); }
 }
 
 .ring__center {
@@ -28,6 +34,7 @@
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.04em;
   color: var(--color-text);
+  transition: color 0.3s ease;
 }
 
 .ring__laps {
@@ -36,4 +43,5 @@
   background: color-mix(in srgb, var(--color-primary) 16%, transparent);
   padding: 1px 8px;
   border-radius: 999px;
+  transition: transform 0.2s ease, background 0.3s ease;
 }

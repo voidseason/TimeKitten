@@ -114,7 +114,6 @@ export function TimerPanel({ plan, onSessionChanged }: Props): JSX.Element {
     setActiveSession(null)
     setElapsed(0)
     onSessionChanged?.()
-    if (plan) loadToday(plan.id)
     // 广播给桌宠窗口
     window.api.pet.broadcastTimerState({
       isRunning: false,
@@ -122,7 +121,7 @@ export function TimerPanel({ plan, onSessionChanged }: Props): JSX.Element {
       planColor: null,
       startedAt: null
     })
-  }, [activeSession, plan, onSessionChanged, loadToday])
+  }, [activeSession, onSessionChanged])
 
   // 当前显示的总秒数
   const displaySeconds = activeSession ? todayBase + elapsed : todayBase

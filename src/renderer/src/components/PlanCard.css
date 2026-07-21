@@ -7,6 +7,24 @@
   cursor: pointer;
   transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
   position: relative;
+  animation: card-slide-in 0.35s ease both;
+}
+
+/* 级联入场延迟 — 由 PlanList 通过 CSS 变量控制 */
+.plancard:nth-child(1) { animation-delay: 0.02s; }
+.plancard:nth-child(2) { animation-delay: 0.06s; }
+.plancard:nth-child(3) { animation-delay: 0.10s; }
+.plancard:nth-child(4) { animation-delay: 0.14s; }
+.plancard:nth-child(5) { animation-delay: 0.18s; }
+.plancard:nth-child(6) { animation-delay: 0.22s; }
+.plancard:nth-child(7) { animation-delay: 0.26s; }
+.plancard:nth-child(8) { animation-delay: 0.30s; }
+.plancard:nth-child(9) { animation-delay: 0.34s; }
+.plancard:nth-child(10) { animation-delay: 0.38s; }
+
+@keyframes card-slide-in {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .plancard:hover {
@@ -18,6 +36,16 @@
   border-color: var(--color-primary);
   box-shadow: 0 0 0 1px var(--color-primary),
               0 4px 16px color-mix(in srgb, var(--color-primary) 28%, transparent);
+}
+
+/* 选中时颜色条脉动 */
+.plancard--active .plancard__color-dot {
+  animation: dot-glow 2s ease-in-out infinite;
+}
+
+@keyframes dot-glow {
+  0%, 100% { box-shadow: 0 0 6px color-mix(in srgb, currentColor 50%, transparent); }
+  50% { box-shadow: 0 0 14px color-mix(in srgb, currentColor 80%, transparent); }
 }
 
 .plancard__handle {
@@ -65,6 +93,12 @@
   color: var(--color-text);
   outline: none;
   font-family: inherit;
+  animation: input-focus-in 0.15s ease both;
+}
+
+@keyframes input-focus-in {
+  from { transform: scaleX(0.96); opacity: 0; }
+  to   { transform: scaleX(1); opacity: 1; }
 }
 
 .plancard__meta {

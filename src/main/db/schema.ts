@@ -35,4 +35,11 @@ CREATE TABLE IF NOT EXISTS settings (
 -- 索引：按日期区间查会话
 CREATE INDEX IF NOT EXISTS idx_sessions_plan_started
   ON time_sessions(plan_id, started_at);
+
+-- 每日日记表
+CREATE TABLE IF NOT EXISTS journal_entries (
+  date       TEXT PRIMARY KEY,  -- 'YYYY-MM-DD'
+  content    TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+);
 `

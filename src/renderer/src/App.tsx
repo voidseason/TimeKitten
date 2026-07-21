@@ -3,10 +3,11 @@ import { TitleBar } from './components/TitleBar'
 import { PlanList } from './components/PlanList'
 import { TimerPanel } from './components/TimerPanel'
 import { StatView } from './components/StatView'
+import { JournalView } from './components/JournalView'
 import { SettingsModal } from './components/SettingsModal'
 import './App.css'
 
-type RightTab = 'timer' | 'stats'
+type RightTab = 'timer' | 'stats' | 'journal'
 
 export function App(): JSX.Element {
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null)
@@ -77,13 +78,21 @@ export function App(): JSX.Element {
             >
               📊 统计
             </button>
+            <button
+              className={`app__tab ${rightTab === 'journal' ? 'app__tab--active' : ''}`}
+              onClick={() => setRightTab('journal')}
+            >
+              📝 日记
+            </button>
           </div>
 
           <div className="app__main-body">
             {rightTab === 'timer' ? (
               <TimerPanel plan={selectedPlan} onSessionChanged={handleSessionChanged} />
-            ) : (
+            ) : rightTab === 'stats' ? (
               <StatView />
+            ) : (
+              <JournalView />
             )}
           </div>
         </main>

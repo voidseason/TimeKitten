@@ -5,8 +5,12 @@ import type {
   UpdatePlanInput,
   TimeSession,
   PlanTimeSummary,
-  TimeRangeQuery
+  TimeRangeQuery,
+  JournalEntry
 } from '../../shared/types'
+
+/** ISO 格式的当前时间（T 分隔，兼容 JS new Date().toISOString() 的字典序比较） */
+const NOW_ISO = "strftime('%Y-%m-%dT%H:%M:%S','now','localtime')"
 
 // ========== Plans ==========
 
@@ -18,7 +22,7 @@ export function getAllPlans(): Plan[] {
 
 export function createPlan(input: CreatePlanInput): Plan {
   const stmt = getDb().prepare(
-    'INSERT INTO plans (title, color, sort_order) VALUES (@title, @color, @sort_order)'
+    `INSERT INTO plans (title, color, sort_order) VALUES (@title, @color, @sort_order)`
   )
   const id = stmt.run({
     title: input.title,
@@ -41,7 +45,7 @@ export function updatePlan(id: number, input: UpdatePlanInput): Plan | null {
   }
   if (sets.length === 0) return getDb().prepare('SELECT * FROM plans WHERE id = ?').get(params) as Plan | null
 
-  sets.push("updated_at = datetime('now','localtime')")
+  sets.push(`updated_at = ${NOW_ISO}`)
   getDb()
     .prepare(`UPDATE plans SET ${sets.join(', ')} WHERE id = @id`)
     .run(params)
@@ -57,23 +61,35 @@ export function deletePlan(id: number): boolean {
 // ========== Sessions ==========
 
 export function startSession(planId: number): TimeSession {
-  const stmt = getDb().prepare(
-    "INSERT INTO time_sessions (plan_id, started_at) VALUES (@plan_id, datetime('now','localtime'))"
+  const db = getDb()
+  // 先关闭所有未结束的会话（防止孤立的 ended_at=NULL 行）
+  db.prepare(`
+    UPDATE time_sessions
+    SET ended_at = ${NOW_ISO},
+        duration_seconds = CAST(
+          (julianday(${NOW_ISO}) - julianday(started_at)) * 86400 AS INTEGER
+        )
+    WHERE ended_at IS NULL
+  `).run()
+
+  // 创建新会话，使用 ISO 格式
+  const stmt = db.prepare(
+    `INSERT INTO time_sessions (plan_id, started_at) VALUES (@plan_id, ${NOW_ISO})`
   )
   const id = stmt.run({ plan_id: planId }).lastInsertRowid as number
-  return getDb().prepare('SELECT * FROM time_sessions WHERE id = ?').get(id) as TimeSession
+  return db.prepare('SELECT * FROM time_sessions WHERE id = ?').get(id) as TimeSession
 }
 
 export function stopSession(sessionId: number): TimeSession | null {
   const db = getDb()
-  db.prepare(
-    `UPDATE time_sessions
-     SET ended_at = datetime('now','localtime'),
-         duration_seconds = CAST(
-           (julianday(datetime('now','localtime')) - julianday(started_at)) * 86400 AS INTEGER
-         )
-     WHERE id = ? AND ended_at IS NULL`
-  ).run(sessionId)
+  db.prepare(`
+    UPDATE time_sessions
+    SET ended_at = ${NOW_ISO},
+        duration_seconds = CAST(
+          (julianday(${NOW_ISO}) - julianday(started_at)) * 86400 AS INTEGER
+        )
+    WHERE id = ? AND ended_at IS NULL
+  `).run(sessionId)
 
   return db.prepare('SELECT * FROM time_sessions WHERE id = ?').get(sessionId) as TimeSession | null
 }
@@ -153,4 +169,88 @@ export function getTotalStudySeconds(): number {
     .prepare('SELECT COALESCE(SUM(duration_seconds), 0) AS total FROM time_sessions')
     .get() as { total: number }
   return row.total
+}
+
+// ========== 日记 ==========
+
+export function journalUpsert(date: string, content: string): JournalEntry {
+  getDb()
+    .prepare(
+      `INSERT INTO journal_entries (date, content, updated_at)
+       VALUES (?, ?, ${NOW_ISO})
+       ON CONFLICT(date) DO UPDATE SET content = excluded.content, updated_at = excluded.updated_at`
+    )
+    .run(date, content)
+
+  return getDb()
+    .prepare('SELECT * FROM journal_entries WHERE date = ?')
+    .get(date) as JournalEntry
+}
+
+export function journalGet(date: string): JournalEntry | null {
+  const row = getDb()
+    .prepare('SELECT * FROM journal_entries WHERE date = ?')
+    .get(date) as JournalEntry | undefined
+  return row ?? null
+}
+
+export function journalDelete(date: string): boolean {
+  const result = getDb()
+    .prepare('DELETE FROM journal_entries WHERE date = ?')
+    .run(date)
+  return result.changes > 0
+}
+
+// ========== 数据迁移 ==========
+
+/** 将旧数据中的空格格式日期（datetime('now','localtime')）替换为 ISO 格式（T 分隔） */
+export function migrateOldDateFormat(): void {
+  const db = getDb()
+  // 检查是否已迁移（settings 表记录标记）
+  const migrated = getSetting('_schema_migrated_iso_date')
+  if (migrated === '1') return
+
+  // 迁移 time_sessions 表：空格 → T
+  const sessions = db
+    .prepare("SELECT id, started_at, ended_at FROM time_sessions WHERE started_at LIKE '% %' OR (ended_at IS NOT NULL AND ended_at LIKE '% %')")
+    .all() as { id: number; started_at: string; ended_at: string | null }[]
+
+  if (sessions.length > 0) {
+    const updateStmt = db.prepare(
+      'UPDATE time_sessions SET started_at = ?, ended_at = ? WHERE id = ?'
+    )
+    const migrate = db.transaction(() => {
+      for (const row of sessions) {
+        updateStmt.run(
+          row.started_at.replace(' ', 'T'),
+          row.ended_at ? row.ended_at.replace(' ', 'T') : null,
+          row.id
+        )
+      }
+    })
+    migrate()
+  }
+
+  // 迁移 plans 表
+  const plans = db
+    .prepare("SELECT id, created_at, updated_at FROM plans WHERE created_at LIKE '% %' OR updated_at LIKE '% %'")
+    .all() as { id: number; created_at: string; updated_at: string }[]
+
+  if (plans.length > 0) {
+    const updateStmt = db.prepare(
+      'UPDATE plans SET created_at = ?, updated_at = ? WHERE id = ?'
+    )
+    const migrate = db.transaction(() => {
+      for (const row of plans) {
+        updateStmt.run(
+          row.created_at.replace(' ', 'T'),
+          row.updated_at.replace(' ', 'T'),
+          row.id
+        )
+      }
+    })
+    migrate()
+  }
+
+  setSetting('_schema_migrated_iso_date', '1')
 }

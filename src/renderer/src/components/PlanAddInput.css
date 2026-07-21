@@ -11,6 +11,7 @@
   font-size: 13px;
   cursor: pointer;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
+  animation: add-btn-in 0.25s ease both;
 }
 
 .add-plan-btn:hover {
@@ -22,10 +23,16 @@
 .add-plan-btn__icon {
   font-size: 18px;
   font-weight: 300;
+  transition: transform 0.25s ease;
+}
+
+.add-plan-btn:hover .add-plan-btn__icon {
+  transform: rotate(90deg);
 }
 
 .add-plan-input {
   padding: 6px;
+  animation: input-expand 0.2s ease both;
 }
 
 .add-plan-input__field {
@@ -38,4 +45,20 @@
   color: var(--color-text);
   outline: none;
   font-family: inherit;
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-primary) 40%, transparent);
+  transition: box-shadow 0.3s ease;
+}
+
+.add-plan-input__field:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+@keyframes add-btn-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes input-expand {
+  from { opacity: 0; transform: scaleY(0.8); }
+  to   { opacity: 1; transform: scaleY(1); }
 }
