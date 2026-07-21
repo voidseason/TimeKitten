@@ -1,7 +1,7 @@
 {
   "name": "timekitten",
-  "version": "0.1.0",
-  "description": "学时喵 TimeKitten — 记录每日学习时长的动漫风桌面应用（含桌宠）",
+  "version": "0.3.0",
+  "description": "学时喵 TimeKitten — 记录每日学习时长的动漫风桌面应用（含帧动画桌宠）",
   "main": "./out/main/index.js",
   "author": "",
   "license": "MIT",
