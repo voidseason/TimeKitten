@@ -7,7 +7,7 @@ export type FrameMap = Partial<Record<AnimState, string[]>>
 /**
  * 帧动画 hook。
  *
- * 使用 requestAnimationFrame 精确控制帧率，根据动画状态切换不同的帧序列。
+ * 使用 setInterval 固定间隔切换帧，不受显示器刷新率影响。
  * 当 frames 数据尚未加载完成时，返回 undefined（调用方应 fallback 到单图）。
  *
  * @param frames  按 AnimState 分组的 base64 帧数组
@@ -23,8 +23,7 @@ export function useFrameAnimation(
   enabled: boolean
 ): string | undefined {
   const [frameIdx, setFrameIdx] = useState(0)
-  const lastTimeRef = useRef(0)
-  const rafRef = useRef(0)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const stateRef = useRef(state)
 
   // 状态切换时重置帧索引
@@ -32,7 +31,6 @@ export function useFrameAnimation(
     if (stateRef.current !== state) {
       stateRef.current = state
       setFrameIdx(0)
-      lastTimeRef.current = 0
     }
   }, [state])
 
@@ -47,28 +45,15 @@ export function useFrameAnimation(
     const seq = frames[state]
     if (!seq || seq.length === 0) return
 
-    const tick = (time: number): void => {
-      if (lastTimeRef.current === 0) {
-        lastTimeRef.current = time
-      }
-
-      const delta = time - lastTimeRef.current
-
-      if (delta >= frameMs) {
-        // 直接计算应该在第几帧，避免 delta 累积导致的跳帧
-        setFrameIdx((prev) => (prev + 1) % frameCount)
-        // 对齐到帧边界，避免误差累积
-        lastTimeRef.current = lastTimeRef.current + frameMs
-      }
-
-      rafRef.current = requestAnimationFrame(tick)
-    }
-
-    rafRef.current = requestAnimationFrame(tick)
+    intervalRef.current = setInterval(() => {
+      setFrameIdx((prev) => (prev + 1) % frameCount)
+    }, frameMs)
 
     return () => {
-      cancelAnimationFrame(rafRef.current)
-      lastTimeRef.current = 0
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
     }
   }, [enabled, state, config, frames])
 
