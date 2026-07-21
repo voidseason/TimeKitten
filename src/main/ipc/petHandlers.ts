@@ -78,6 +78,23 @@ export function registerPetIpc(): void {
     return files.filter((f) => MIME[extname(f).toLowerCase()])
   })
 
+  // 列出指定形态/动画状态的帧文件（按文件名排序保证帧顺序）
+  ipcMain.handle(
+    IPC_CHANNELS.PET_LIST_FRAMES,
+    async (_e, formId: string, state: string) => {
+      const dir = join(petAssetDir(), formId, state)
+      if (!existsSync(dir)) return []
+      try {
+        const files = await readdir(dir)
+        return files
+          .filter((f) => MIME[extname(f).toLowerCase()])
+          .sort()
+      } catch {
+        return []
+      }
+    }
+  )
+
   // 读取指定图片 → base64 data URL
   ipcMain.handle(IPC_CHANNELS.PET_GET_ASSET, async (_e, fileName: string) => {
     const dir = petAssetDir()

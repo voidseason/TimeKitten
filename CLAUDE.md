@@ -1,6 +1,6 @@
 # CLAUDE.md — 学时喵 · TimeKitten
 
-> 记录每天学习时长的动漫风 Windows 桌面应用，含可常驻桌面的兽耳娘桌宠。
+> 记录每天学习时长的动漫风 Windows 桌面应用，含可常驻桌面的桌宠。
 
 ## 技术栈与运行
 
@@ -116,3 +116,6 @@ IPC 通道常量在 `src/shared/types.ts` 的 `IPC_CHANNELS` 定义。
 
 - `main` — 发布/稳定
 - `dev` — 日常开发（当前）
+
+## git提交策略
+- 每完成一个模块进行一次提交

@@ -1,9 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import type { PetTimerState } from '@shared/types'
+import type { PetTimerState, AnimState } from '@shared/types'
 import { PET_FORMS, PET_FORM_ROTATE_MINUTES } from '@shared/petForms'
+import { useFrameAnimation, type FrameMap } from './useFrameAnimation'
 
 /**
- * 桌宠主组件：头像框 + 形态自动/手动切换 + 菜单 + 悬浮特效 + 拖拽
+ * 桌宠主组件：头像框 + 帧动画/静态图 + 形态自动/手动切换 + 菜单 + 悬浮特效 + 拖拽
+ *
+ * 动画策略：
+ * - 存在 assets/pet/{formId}/{state}/ 帧序列时 → 播放帧动画
+ * - 帧序列不存在时 → 退回单图 + CSS 呼吸/摇摆动画（原有行为）
  *
  * 形态切换机制：
  * - 计时中：每 PET_FORM_ROTATE_MINUTES 分钟自动切换到下一个形态（按 startedAt 计算）
@@ -11,6 +16,8 @@ import { PET_FORMS, PET_FORM_ROTATE_MINUTES } from '@shared/petForms'
  */
 export function PetApp(): JSX.Element {
   const [images, setImages] = useState<Record<string, string>>({})
+  const [frameCache, setFrameCache] = useState<Record<string, FrameMap>>({})
+  const [hasFrames, setHasFrames] = useState(false)
   const [manualFormIdx, setManualFormIdx] = useState(0)
   const [autoFormIdx, setAutoFormIdx] = useState(0)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -27,17 +34,47 @@ export function PetApp(): JSX.Element {
   )
   const draggingRef = useRef(false)
 
-  // 加载所有图片 + 检查已有活跃会话
+  // 加载所有图片 + 帧序列 + 检查已有活跃会话
   useEffect(() => {
     let cancelled = false
     ;(async () => {
-      // 图片
+      // 加载 fallback 单图
       const loaded: Record<string, string> = {}
       for (const form of PET_FORMS) {
         const data = await window.api.pet.getAsset(form.file)
         if (data) loaded[form.id] = data
       }
       if (!cancelled) setImages(loaded)
+
+      // 尝试加载帧序列（每个形态的每个动画状态）
+      const cache: Record<string, FrameMap> = {}
+      let anyFrames = false
+      for (const form of PET_FORMS) {
+        if (!form.animations || form.animations.length === 0) continue
+
+        const formFrames: FrameMap = {}
+        for (const anim of form.animations) {
+          const fileNames = await window.api.pet.listFrames(form.id, anim.state)
+          if (fileNames.length === 0) continue
+
+          const frameDataUrls: string[] = []
+          for (const fn of fileNames) {
+            const dataUrl = await window.api.pet.getAsset(`${form.id}/${anim.state}/${fn}`)
+            if (dataUrl) frameDataUrls.push(dataUrl)
+          }
+          if (frameDataUrls.length > 0) {
+            formFrames[anim.state] = frameDataUrls
+            anyFrames = true
+          }
+        }
+        if (Object.keys(formFrames).length > 0) {
+          cache[form.id] = formFrames
+        }
+      }
+      if (!cancelled) {
+        setFrameCache(cache)
+        setHasFrames(anyFrames)
+      }
 
       // 若开启桌宠时已在计时，同步显示
       const active = await window.api.db.sessionGetActive()
@@ -90,6 +127,22 @@ export function PetApp(): JSX.Element {
   const currentFormIdx = timerState.isRunning ? autoFormIdx : manualFormIdx
   const currentForm = PET_FORMS[currentFormIdx] ?? PET_FORMS[0]
   const currentImage = images[currentForm.id]
+
+  // 当前动画状态
+  const animState: AnimState = timerState.isRunning ? 'active' : 'idle'
+
+  // 帧动画：有帧序列时用帧动画，否则返回 undefined
+  const currentFormFrames = frameCache[currentForm.id]
+  const frameEnabled = hasFrames && !!currentFormFrames && Object.keys(currentFormFrames).length > 0
+  const frameImage = useFrameAnimation(
+    currentFormFrames ?? {},
+    animState,
+    currentForm.animations,
+    frameEnabled
+  )
+
+  // 最终显示的图片：帧动画优先，否则 fallback 单图
+  const displayImage = frameImage ?? currentImage
 
   // 手动切换形态（仅非计时时可用）
   const cycleForm = useCallback(() => {
@@ -146,7 +199,7 @@ export function PetApp(): JSX.Element {
       <div
         className={`pet ${hovered ? 'pet--hover' : ''} ${
           timerState.isRunning ? 'pet--running' : ''
-        }`}
+        } ${frameEnabled ? 'pet--sprite' : ''}`}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -165,8 +218,8 @@ export function PetApp(): JSX.Element {
 
         {/* 头像框 */}
         <div className="pet__avatar">
-          {currentImage ? (
-            <img src={currentImage} alt={currentForm.name} draggable={false} />
+          {displayImage ? (
+            <img src={displayImage} alt={currentForm.name} draggable={false} />
           ) : (
             <div className="pet__loading">🐾</div>
           )}
