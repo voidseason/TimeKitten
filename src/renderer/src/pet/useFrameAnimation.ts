@@ -57,7 +57,8 @@ export function useFrameAnimation(
       if (delta >= frameMs) {
         // 直接计算应该在第几帧，避免 delta 累积导致的跳帧
         setFrameIdx((prev) => (prev + 1) % frameCount)
-        lastTimeRef.current = time
+        // 对齐到帧边界，避免误差累积
+        lastTimeRef.current = lastTimeRef.current + frameMs
       }
 
       rafRef.current = requestAnimationFrame(tick)
