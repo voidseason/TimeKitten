@@ -186,3 +186,4 @@ IPC 通道常量在 `src/shared/types.ts` 的 `IPC_CHANNELS` 定义。
 - 每完成一个模块进行一次提交
 - 大版本打 annotated tag（`git tag -a v0.3.0 -m "..."`）
 - tag 命名：`v<major>.<minor>.<patch>`
+- 发版流程：dev 稳定 → merge 到 main → 在 main 上打 tag → push both
