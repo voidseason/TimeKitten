@@ -55,6 +55,15 @@ body {
     pet-sway 2.4s ease-in-out infinite;
 }
 
+/* 有帧动画时关闭 CSS 呼吸/摇摆（帧动画自带动作） */
+.pet--sprite.pet--running {
+  animation: none;
+}
+
+.pet--sprite {
+  animation: none;
+}
+
 @keyframes pet-breathe {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-4px) scale(1.015); }

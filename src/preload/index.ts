@@ -96,6 +96,8 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.PET_LIST_ASSETS),
     getAsset: (fileName: string): Promise<string | null> =>
       ipcRenderer.invoke(IPC_CHANNELS.PET_GET_ASSET, fileName),
+    listFrames: (formId: string, state: string): Promise<string[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.PET_LIST_FRAMES, formId, state),
 
     // 计时状态：主界面广播
     broadcastTimerState: (state: PetTimerState): void =>

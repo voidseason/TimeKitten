@@ -76,6 +76,7 @@ export const IPC_CHANNELS = {
   PET_GET_TOTAL_SECONDS: 'pet:get-total-seconds',
   PET_GET_ASSET: 'pet:get-asset',
   PET_LIST_ASSETS: 'pet:list-assets',
+  PET_LIST_FRAMES: 'pet:list-frames',
   // 主进程 → 桌宠：计时状态变化广播
   PET_TIMER_STATE: 'pet:timer-state',
 
@@ -97,16 +98,31 @@ export interface JournalEntry {
   updated_at: string
 }
 
-/** 桌宠形态定义（图片文件 + 解锁阈值） */
+/** 桌宠帧动画状态 */
+export type AnimState = 'idle' | 'active' | 'happy'
+
+/** 单个动画状态的帧配置 */
+export interface PetAnimation {
+  /** 动画状态名 */
+  state: AnimState
+  /** 该状态包含的帧数 */
+  frames: number
+  /** 播放帧率 */
+  fps: number
+}
+
+/** 桌宠形态定义（图片文件 + 解锁阈值 + 可选帧动画） */
 export interface PetForm {
   /** 形态 id */
   id: string
   /** 展示名 */
   name: string
-  /** 图片文件名（相对 assets/pet/） */
+  /** 图片文件名（相对 assets/pet/，帧序列不存在时 fallback） */
   file: string
   /** 解锁所需累计学习秒数（0 = 默认解锁） */
   unlockSeconds: number
+  /** 帧动画配置（可选，无配置则退回单图 + CSS 动画） */
+  animations?: PetAnimation[]
 }
 
 /** 桌宠计时状态（主进程广播给桌宠窗口） */

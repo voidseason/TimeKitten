@@ -16,30 +16,55 @@ export const PET_FORMS: PetForm[] = [
     id: 'form1',
     name: '水手服',
     file: '图片4.png',
-    unlockSeconds: 0
+    unlockSeconds: 0,
+    animations: [
+      { state: 'idle', frames: 8, fps: 1.2 },
+      { state: 'active', frames: 8, fps: 2 },
+      { state: 'happy', frames: 10, fps: 3 }
+    ]
   },
   {
     id: 'form2',
     name: '元气马尾',
     file: '图片1.png',
-    unlockSeconds: 0
+    unlockSeconds: 0,
+    animations: [
+      { state: 'idle', frames: 8, fps: 1.2 },
+      { state: 'active', frames: 8, fps: 2 },
+      { state: 'happy', frames: 10, fps: 3 }
+    ]
   },
   {
     id: 'form3',
     name: '悠闲时刻',
     file: '图片3.png',
-    unlockSeconds: 0
+    unlockSeconds: 0,
+    animations: [
+      { state: 'idle', frames: 8, fps: 1.2 },
+      { state: 'active', frames: 8, fps: 2 },
+      { state: 'happy', frames: 10, fps: 3 }
+    ]
   },
   {
     id: 'form4',
     name: '温柔一面',
     file: '图片2.png',
-    unlockSeconds: 0
+    unlockSeconds: 0,
+    animations: [
+      { state: 'idle', frames: 8, fps: 1.2 },
+      { state: 'active', frames: 8, fps: 2 },
+      { state: 'happy', frames: 10, fps: 3 }
+    ]
   },
   {
     id: 'form5',
     name: '闪耀盛装',
     file: '图片5.png',
-    unlockSeconds: 0
+    unlockSeconds: 0,
+    animations: [
+      { state: 'idle', frames: 8, fps: 1.2 },
+      { state: 'active', frames: 8, fps: 2 },
+      { state: 'happy', frames: 10, fps: 3 }
+    ]
   }
 ]
